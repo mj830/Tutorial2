@@ -11,6 +11,13 @@ int main(int argc, char** argv) {
   int world_size;
   MPI_Comm_size(MPI_COMM_WORLD, &world_size);
 
+  // Check if the world size is 4
+  if (world_size != 4) {
+    fprintf(stderr, "This is a four player only game\n");
+    MPI_Finalize();
+    exit(EXIT_FAILURE);
+  }
+
   int token;
   // Receive from the lower process and send to the higher process. Take care
   // of the special case when you are the first process to prevent deadlock.
@@ -20,7 +27,7 @@ int main(int argc, char** argv) {
     printf("Process %d received token %d from process %d\n", world_rank, token,
            world_rank - 1);
     // Inform the teammate in the other group
-    int teammate = (world_rank % 2 == 0) ? world_rank - 2 : world_rank + 2;
+    int teammate = (world_rank + 2) % 4;
     printf("Process %d informed its teammate (process %d) that it received token %d\n", world_rank, teammate, token);
   } else {
     // Set the token's value if you are process 0
@@ -31,8 +38,8 @@ int main(int argc, char** argv) {
   printf("Process %d sent token %d to process %d\n", world_rank, token,
          (world_rank + 1) % world_size);
   // Inform the teammate in the other group
-  int teammate = (world_rank % 2 == 0) ? world_rank - 2 : world_rank + 2;
-  printf("Process %d informed its teammate (Process %d) that it sent token %d\n", world_rank, teammate, token);
+  int teammate = (world_rank + 2) % 4;
+  printf("Process %d informed its teammate (process %d) that it sent token %d\n", world_rank, teammate, token);
   
   // Now process 0 can receive from the last process. This makes sure that at
   // least one MPI_Send is initialized before all MPI_Recvs (again, to prevent
@@ -43,8 +50,8 @@ int main(int argc, char** argv) {
     printf("Process %d received token %d from process %d\n", world_rank, token,
            world_size - 1);
     // Inform the teammate in the other group
-    int teammate = (world_rank % 2 == 0) ? world_rank - 2 : world_rank + 2;
-    printf("Process %d informed its teammate (Process %d) that it received token %d\n", world_rank, teammate, token);
+    int teammate = (world_rank + 2) % 4;
+    printf("Process %d informed its teammate (process %d) that it received token %d\n", world_rank, teammate, token);
   }
   MPI_Finalize();
 }
