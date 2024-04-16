@@ -1,3 +1,13 @@
+// Author: Wes Kendall
+// Copyright 2011 www.mpitutorial.com
+// This code is provided freely with the tutorials on mpitutorial.com. Feel
+// free to modify it for your own use. Any distribution of the code must
+// either provide a link to www.mpitutorial.com or keep this header intact.
+//
+// Modified ping pong example for 4 player badminton game using MPI_Send and MPI_Recv.
+// Four processes play the game by sending the token in a sequence (0 -> 1 -> 2 -> 3 -> 0),
+// each time incrementing the token before sending it.
+//
 #include <mpi.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,18 +38,18 @@ int main(int argc, char** argv) {
       // Increment the badminton count before you send it
       badminton_count++;
       MPI_Send(&badminton_count, 1, MPI_INT, partner_rank, 0, MPI_COMM_WORLD);
-      printf("P%d sent rallyCount of %d to P%d\n",
+      printf("Process %d sent rallyCount of %d to process %d\n",
              world_rank, badminton_count, partner_rank);
       MPI_Send(&badminton_count, 1, MPI_INT, teammate_rank, 0, MPI_COMM_WORLD);
-      printf("P%d informed P%d\n", world_rank, teammate_rank);
+      printf("Process %d informed process %d\n", world_rank, teammate_rank);
     } else {
       MPI_Recv(&badminton_count, 1, MPI_INT, partner_rank, 0, MPI_COMM_WORLD,
                MPI_STATUS_IGNORE);
-      printf("P%d received rallyCount %d from P%d\n",
+      printf("Process %d received rallyCount %d from process %d\n",
              world_rank, badminton_count, partner_rank);
       MPI_Recv(&badminton_count, 1, MPI_INT, teammate_rank, 0, MPI_COMM_WORLD,
                MPI_STATUS_IGNORE);
-      printf("P%d informed P%d\n", world_rank, teammate_rank);
+      printf("Process %d informed process %d\n", world_rank, teammate_rank);
     }
   }
   MPI_Finalize();
