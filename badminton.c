@@ -19,12 +19,16 @@ int main(int argc, char** argv) {
              MPI_STATUS_IGNORE);
     printf("Process %d received token %d from process %d\n", world_rank, token,
            world_rank - 1);
+    // Notify teammate about receiving token
+    printf("Process %d: Received token %d from teammate\n", world_rank, token);
   } else {
     // Set the token's value if you are process 0
     token = -1;
   }
   MPI_Send(&token, 1, MPI_INT, (world_rank + 1) % world_size, 0,
            MPI_COMM_WORLD);
+  // Notify teammate about sending token
+  printf("Process %d: Sent token %d to teammate\n", world_rank, token);
   // Now process 0 can receive from the last process. This makes sure that at
   // least one MPI_Send is initialized before all MPI_Recvs (again, to prevent
   // deadlock)
@@ -33,6 +37,8 @@ int main(int argc, char** argv) {
              MPI_STATUS_IGNORE);
     printf("Process %d received token %d from process %d\n", world_rank, token,
            world_size - 1);
+    // Notify teammate about receiving token
+    printf("Process %d: Received token %d from teammate\n", world_rank, token);
   }
   MPI_Finalize();
 }
